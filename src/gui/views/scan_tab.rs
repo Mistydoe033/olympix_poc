@@ -10,18 +10,11 @@ pub fn render_scan_tab(ui: &mut egui::Ui, state: &mut AppState) {
             .strong());
         
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            if ui.button(egui::RichText::new("🚀 Scan All Contracts")
+            if ui.button(egui::RichText::new("🔍 Scan All Contracts")
                 .size(14.0)
                 .color(egui::Color32::WHITE))
                 .clicked() {
                 scan_all_contracts(state);
-            }
-            
-            if ui.button(egui::RichText::new("📤 Export Report")
-                .size(14.0)
-                .color(egui::Color32::WHITE))
-                .clicked() {
-                export_scan_report(state);
             }
         });
     });
@@ -283,6 +276,25 @@ fn render_scan_results(ui: &mut egui::Ui, state: &mut AppState) {
             ui.add_space(5.0);
         }
         
+        // Export buttons
+        ui.horizontal(|ui| {
+            ui.label("Export:");
+            if ui.button("📤 TXT").clicked() {
+                export_scan_report(state, &filtered_findings, "txt");
+            }
+            if ui.button("📋 JSON").clicked() {
+                export_scan_report(state, &filtered_findings, "json");
+            }
+            if ui.button("📊 CSV").clicked() {
+                export_scan_report(state, &filtered_findings, "csv");
+            }
+            if ui.button("📊 Summary").clicked() {
+                export_summary_report(state);
+            }
+        });
+        
+        ui.add_space(5.0);
+        
         ui.label(format!("Found {} vulnerability(ies):", filtered_findings.len()));
         ui.add_space(10.0);
         
@@ -420,15 +432,51 @@ fn scan_all_contracts(state: &mut AppState) {
     state.success_message = Some("Scan completed successfully!".to_string());
 }
 
-fn export_scan_report(state: &mut AppState) {
-    let report = services::generate_report(&state.vulnerability_findings);
+fn export_scan_report(state: &mut AppState, findings: &[crate::models::VulnerabilityFinding], format: &str) {
+    let (report, extension) = match format {
+        "json" => (crate::services::generate_json_report(findings), "json"),
+        "csv" => (crate::services::generate_csv_report(findings), "csv"),
+        _ => (crate::services::generate_report(findings), "txt"),
+    };
     
-    match utils::export_report(&report, "security_report.txt") {
+    let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
+    let filename = format!("security_report_{}.{}", timestamp, extension);
+
+    match utils::export_report(&report, &filename) {
         Ok(_) => {
-            state.success_message = Some("Report exported successfully to Documents/Olympix Pattern Tool/security_report.txt".to_string());
+            state.success_message = Some(format!("{} report exported successfully to Documents/Olympix Pattern Tool/{}", 
+                format.to_uppercase(), filename));
         }
         Err(e) => {
-            state.error_message = Some(format!("Failed to save report: {}", e));
+            state.error_message = Some(format!("Failed to save {} report: {}", format.to_uppercase(), e));
+        }
+    }
+}
+
+fn export_summary_report(state: &mut AppState) {
+    let summary = &state.scan_results_summary;
+    let report = format!(
+        "Scan Summary Report\nGenerated: {}\n\nTotal Contracts Scanned: {}\nTotal Vulnerabilities Found: {}\n\nSeverity Breakdown:\n- Critical: {}\n- High: {}\n- Medium: {}\n- Low: {}\n\nScan Duration: {}\n\nContracts Scanned:\n{}",
+        chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
+        summary.total_contracts,
+        summary.total_findings,
+        summary.critical_findings,
+        summary.high_findings,
+        summary.medium_findings,
+        summary.low_findings,
+        state.last_scan_time.map_or("N/A".to_string(), |t| format!("{:.2} seconds", t)),
+        summary.contracts_scanned.join("\n")
+    );
+
+    let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
+    let filename = format!("scan_summary_{}.txt", timestamp);
+
+    match utils::export_report(&report, &filename) {
+        Ok(_) => {
+            state.success_message = Some(format!("Scan summary exported successfully to Documents/Olympix Pattern Tool/{}", filename));
+        }
+        Err(e) => {
+            state.error_message = Some(format!("Failed to save scan summary: {}", e));
         }
     }
 } 

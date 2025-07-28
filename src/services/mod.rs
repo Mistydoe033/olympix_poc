@@ -282,6 +282,111 @@ pub fn generate_report(findings: &[VulnerabilityFinding]) -> String {
     report
 }
 
+pub fn generate_json_report(findings: &[VulnerabilityFinding]) -> String {
+    use serde_json;
+    
+    #[derive(serde::Serialize)]
+    struct FindingJson {
+        severity: String,
+        category: String,
+        line: usize,
+        warning: String,
+        snippet: String,
+        explanation: String,
+        fix_suggestion: String,
+        real_world_example: Option<String>,
+    }
+    
+    #[derive(serde::Serialize)]
+    struct ReportJson {
+        timestamp: String,
+        total_findings: usize,
+        findings: Vec<FindingJson>,
+        summary: SummaryJson,
+    }
+    
+    #[derive(serde::Serialize)]
+    struct SummaryJson {
+        critical: usize,
+        high: usize,
+        medium: usize,
+        low: usize,
+    }
+    
+    let findings_json: Vec<FindingJson> = findings.iter().map(|f| FindingJson {
+        severity: match f.severity {
+            Severity::Critical => "Critical".to_string(),
+            Severity::High => "High".to_string(),
+            Severity::Medium => "Medium".to_string(),
+            Severity::Low => "Low".to_string(),
+            Severity::Info => "Info".to_string(),
+        },
+        category: format!("{:?}", f.category),
+        line: f.line,
+        warning: f.warning.clone(),
+        snippet: f.snippet.clone(),
+        explanation: f.explanation.clone(),
+        fix_suggestion: f.fix_suggestion.clone(),
+        real_world_example: f.real_world_example.clone(),
+    }).collect();
+    
+    let summary = SummaryJson {
+        critical: findings.iter().filter(|f| matches!(f.severity, Severity::Critical)).count(),
+        high: findings.iter().filter(|f| matches!(f.severity, Severity::High)).count(),
+        medium: findings.iter().filter(|f| matches!(f.severity, Severity::Medium)).count(),
+        low: findings.iter().filter(|f| matches!(f.severity, Severity::Low)).count(),
+    };
+    
+    let report = ReportJson {
+        timestamp: chrono::Utc::now().to_rfc3339(),
+        total_findings: findings.len(),
+        findings: findings_json,
+        summary,
+    };
+    
+    serde_json::to_string_pretty(&report).unwrap_or_else(|_| "{}".to_string())
+}
+
+pub fn generate_csv_report(findings: &[VulnerabilityFinding]) -> String {
+    let mut csv = String::new();
+    csv.push_str("Severity,Category,Line,Warning,Code,Explanation,Fix Suggestion,Real World Example\n");
+    
+    for finding in findings {
+        let severity = match finding.severity {
+            Severity::Critical => "Critical",
+            Severity::High => "High",
+            Severity::Medium => "Medium",
+            Severity::Low => "Low",
+            Severity::Info => "Info",
+        };
+        
+        let category = format!("{:?}", finding.category);
+        let real_world_example = finding.real_world_example.as_deref().unwrap_or("");
+        
+        // Escape CSV fields that contain commas or quotes
+        let escape_csv = |s: &str| {
+            if s.contains(',') || s.contains('"') || s.contains('\n') {
+                format!("\"{}\"", s.replace("\"", "\"\""))
+            } else {
+                s.to_string()
+            }
+        };
+        
+        csv.push_str(&format!("{},{},{},{},{},{},{},{}\n",
+            severity,
+            category,
+            finding.line,
+            escape_csv(&finding.warning),
+            escape_csv(&finding.snippet),
+            escape_csv(&finding.explanation),
+            escape_csv(&finding.fix_suggestion),
+            escape_csv(real_world_example)
+        ));
+    }
+    
+    csv
+}
+
 pub fn get_real_world_examples() -> Vec<ExploitExample> {
     vec![
         ExploitExample {

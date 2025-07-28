@@ -186,6 +186,9 @@ pub fn write_file_content(path: &Path, content: &str) -> Result<(), std::io::Err
 pub fn export_report(content: &str, filename: &str) -> Result<(), std::io::Error> {
     let app_dir = get_app_data_dir();
     let report_path = app_dir.join(filename);
+    if let Some(parent) = report_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     fs::write(report_path, content)
 }
 
