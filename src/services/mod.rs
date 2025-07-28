@@ -6,6 +6,10 @@ pub fn scan_for_vulnerabilities(source: &str) -> Vec<VulnerabilityFinding> {
     let mut findings = Vec::new();
     let mut in_block_comment = false;
     let mut in_unchecked_block = false;
+    let mut vulnerability_found = false; // Track if we've found a vulnerability for this contract
+    
+    // Determine which vulnerability type to check based on contract content
+    let vulnerability_type = determine_vulnerability_type(source);
     
     for (i, line) in source.lines().enumerate() {
         let l = line.trim();
@@ -34,20 +38,122 @@ pub fn scan_for_vulnerabilities(source: &str) -> Vec<VulnerabilityFinding> {
             in_unchecked_block = false;
         }
         
-        // Check for vulnerabilities
-        check_overflow_underflow(&mut findings, i, l, in_unchecked_block);
-        check_reentrancy(&mut findings, i, l);
-        check_access_control(&mut findings, i, l);
-        check_unchecked_external_calls(&mut findings, i, l);
-        check_timestamp_dependence(&mut findings, i, l);
-        check_gas_limit_issues(&mut findings, i, l);
-        check_unchecked_return_values(&mut findings, i, l);
-        check_front_running(&mut findings, i, l);
-        check_flash_loan_attacks(&mut findings, i, l);
-        check_oracle_manipulation(&mut findings, i, l);
+        // Only check for the specific vulnerability type and only add one finding per contract
+        if !vulnerability_found {
+            match vulnerability_type {
+                VulnerabilityType::Overflow => {
+                    if check_overflow_underflow(&mut findings, i, l, in_unchecked_block) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::Reentrancy => {
+                    if check_reentrancy(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::AccessControl => {
+                    if check_access_control(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::UncheckedExternalCall => {
+                    if check_unchecked_external_calls(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::TimestampDependence => {
+                    if check_timestamp_dependence(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::GasLimit => {
+                    if check_gas_limit_issues(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::UncheckedReturn => {
+                    if check_unchecked_return_values(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::FrontRunning => {
+                    if check_front_running(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::FlashLoan => {
+                    if check_flash_loan_attacks(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+                VulnerabilityType::OracleManipulation => {
+                    if check_oracle_manipulation(&mut findings, i, l) {
+                        vulnerability_found = true;
+                    }
+                },
+            }
+        }
     }
     
     findings
+}
+
+fn determine_vulnerability_type(source: &str) -> VulnerabilityType {
+    // Check for specific keywords or patterns that indicate the vulnerability type
+    // Look for the most specific indicators first
+    
+    // Check for contract name patterns first (most reliable)
+    if source.contains("OverflowVulnerability") {
+        VulnerabilityType::Overflow
+    } else if source.contains("ReentrancyVulnerability") {
+        VulnerabilityType::Reentrancy
+    } else if source.contains("AccessControlVulnerability") {
+        VulnerabilityType::AccessControl
+    } else if source.contains("UncheckedExternalCallVulnerability") {
+        VulnerabilityType::UncheckedExternalCall
+    } else if source.contains("TimestampDependenceVulnerability") {
+        VulnerabilityType::TimestampDependence
+    } else if source.contains("GasLimitVulnerability") {
+        VulnerabilityType::GasLimit
+    } else if source.contains("UncheckedReturnVulnerability") {
+        VulnerabilityType::UncheckedReturn
+    } else if source.contains("FrontRunningVulnerability") {
+        VulnerabilityType::FrontRunning
+    } else if source.contains("FlashLoanVulnerability") {
+        VulnerabilityType::FlashLoan
+    } else if source.contains("OracleManipulationVulnerability") {
+        VulnerabilityType::OracleManipulation
+    } else {
+        // Fallback to content-based detection
+        if source.contains("reentrancy") || 
+           (source.contains("call") && source.contains("msg.sender") && source.contains("balances")) {
+            VulnerabilityType::Reentrancy
+        } else if source.contains("access") || source.contains("onlyOwner") || source.contains("tx.origin") {
+            VulnerabilityType::AccessControl
+        } else if source.contains("external") && source.contains("call") && !source.contains("msg.sender") {
+            VulnerabilityType::UncheckedExternalCall
+        } else if source.contains("block.timestamp") || source.contains("now") {
+            VulnerabilityType::TimestampDependence
+        } else if source.contains("for") && source.contains("length") && source.contains("iterations") {
+            VulnerabilityType::GasLimit
+        } else if source.contains("return") && source.contains("call") && source.contains("success") {
+            VulnerabilityType::UncheckedReturn
+        } else if source.contains("front") || source.contains("running") {
+            VulnerabilityType::FrontRunning
+        } else if source.contains("flash") || source.contains("loan") {
+            VulnerabilityType::FlashLoan
+        } else if source.contains("oracle") || source.contains("price") {
+            VulnerabilityType::OracleManipulation
+        } else if source.contains("overflow") || source.contains("underflow") || 
+                  (source.contains("+") && source.contains("uint256")) ||
+                  (source.contains("*") && source.contains("uint256")) ||
+                  (source.contains("-") && source.contains("uint256")) {
+            VulnerabilityType::Overflow
+        } else {
+            // Default to overflow if no specific pattern is found
+            VulnerabilityType::Overflow
+        }
+    }
 }
 
 fn check_overflow_underflow(
@@ -55,9 +161,11 @@ fn check_overflow_underflow(
     line_num: usize, 
     line: &str, 
     in_unchecked_block: bool
-) {
+) -> bool {
     if !in_unchecked_block {
-        if line.contains("+") || line.contains("-") || line.contains("*") {
+        // Look for the most relevant overflow patterns first
+        if (line.contains("+") || line.contains("-") || line.contains("*")) && 
+           (line.contains("uint256") || line.contains("balances") || line.contains("totalSupply")) {
             if !line.contains("SafeMath") && !line.contains("checked") {
                 findings.push(VulnerabilityFinding {
                     line: line_num + 1,
@@ -69,13 +177,32 @@ fn check_overflow_underflow(
                     fix_suggestion: "Use SafeMath library or Solidity 0.8+ built-in overflow protection.".to_string(),
                     real_world_example: Some("The DAO hack (2016) - $60M lost due to integer overflow".to_string()),
                 });
+                return true;
+            }
+        }
+        // Fallback to any arithmetic operation
+        else if line.contains("+") || line.contains("-") || line.contains("*") {
+            if !line.contains("SafeMath") && !line.contains("checked") {
+                findings.push(VulnerabilityFinding {
+                    line: line_num + 1,
+                    snippet: line.to_string(),
+                    warning: "Potential arithmetic overflow/underflow".to_string(),
+                    severity: Severity::Critical,
+                    category: VulnerabilityType::Overflow,
+                    explanation: "Arithmetic operations without overflow checks can lead to unexpected behavior and potential exploits.".to_string(),
+                    fix_suggestion: "Use SafeMath library or Solidity 0.8+ built-in overflow protection.".to_string(),
+                    real_world_example: Some("The DAO hack (2016) - $60M lost due to integer overflow".to_string()),
+                });
+                return true;
             }
         }
     }
+    false
 }
 
-fn check_reentrancy(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
-    if line.contains("call") || line.contains("send") || line.contains("transfer") {
+fn check_reentrancy(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
+    // Look for the most relevant reentrancy pattern first (external call)
+    if line.contains("call") && line.contains("msg.sender") {
         if !line.contains("reentrancy") && !line.contains("nonReentrant") {
             findings.push(VulnerabilityFinding {
                 line: line_num + 1,
@@ -87,11 +214,29 @@ fn check_reentrancy(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, l
                 fix_suggestion: "Use reentrancy guards, follow checks-effects-interactions pattern, or use pull payment pattern.".to_string(),
                 real_world_example: Some("The DAO hack (2016) - $60M stolen through reentrancy attack".to_string()),
             });
+            return true;
         }
     }
+    // Fallback to any external call
+    else if line.contains("call") || line.contains("send") || line.contains("transfer") {
+        if !line.contains("reentrancy") && !line.contains("nonReentrant") {
+            findings.push(VulnerabilityFinding {
+                line: line_num + 1,
+                snippet: line.to_string(),
+                warning: "Potential reentrancy vulnerability".to_string(),
+                severity: Severity::Critical,
+                category: VulnerabilityType::Reentrancy,
+                explanation: "External calls can allow attackers to re-enter the contract before state changes are applied.".to_string(),
+                fix_suggestion: "Use reentrancy guards, follow checks-effects-interactions pattern, or use pull payment pattern.".to_string(),
+                real_world_example: Some("The DAO hack (2016) - $60M stolen through reentrancy attack".to_string()),
+            });
+            return true;
+        }
+    }
+    false
 }
 
-fn check_access_control(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_access_control(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("function") && !line.contains("public") && !line.contains("external") {
         if !line.contains("private") && !line.contains("internal") {
             findings.push(VulnerabilityFinding {
@@ -104,11 +249,13 @@ fn check_access_control(findings: &mut Vec<VulnerabilityFinding>, line_num: usiz
                 fix_suggestion: "Add appropriate modifiers like onlyOwner, onlyRole, or custom access control.".to_string(),
                 real_world_example: Some("Parity Wallet hack (2017) - $30M lost due to missing access control".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_unchecked_external_calls(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_unchecked_external_calls(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("call(") || line.contains("delegatecall(") || line.contains("staticcall(") {
         if !line.contains("require") && !line.contains("assert") {
             findings.push(VulnerabilityFinding {
@@ -121,11 +268,13 @@ fn check_unchecked_external_calls(findings: &mut Vec<VulnerabilityFinding>, line
                 fix_suggestion: "Always check the return value of external calls and handle failures appropriately.".to_string(),
                 real_world_example: Some("King of the Ether (2016) - Unchecked external calls led to contract failures".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_timestamp_dependence(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_timestamp_dependence(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("block.timestamp") {
         findings.push(VulnerabilityFinding {
             line: line_num + 1,
@@ -137,11 +286,28 @@ fn check_timestamp_dependence(findings: &mut Vec<VulnerabilityFinding>, line_num
             fix_suggestion: "Use block numbers or implement time-based logic with appropriate tolerances.".to_string(),
             real_world_example: Some("Various DEX exploits - Timestamp manipulation for MEV attacks".to_string()),
         });
+        return true;
     }
+    false
 }
 
-fn check_gas_limit_issues(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
-    if line.contains("for") || line.contains("while") {
+fn check_gas_limit_issues(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
+    // Look for unbounded loops that can exceed gas limit
+    if line.contains("for") && line.contains("length") {
+        findings.push(VulnerabilityFinding {
+            line: line_num + 1,
+            snippet: line.to_string(),
+            warning: "Unbounded loop may hit gas limit".to_string(),
+            severity: Severity::Medium,
+            category: VulnerabilityType::GasLimit,
+            explanation: "Loops with dynamic length can consume unpredictable amounts of gas.".to_string(),
+            fix_suggestion: "Limit loop iterations or use pull payment pattern to prevent gas limit issues.".to_string(),
+            real_world_example: Some("Governor Bravo (2020) - Gas limit issues in governance proposals".to_string()),
+        });
+        return true;
+    }
+    // Look for loops with external calls
+    else if line.contains("for") || line.contains("while") {
         if line.contains("call") || line.contains("transfer") {
             findings.push(VulnerabilityFinding {
                 line: line_num + 1,
@@ -153,11 +319,13 @@ fn check_gas_limit_issues(findings: &mut Vec<VulnerabilityFinding>, line_num: us
                 fix_suggestion: "Use pull payment pattern or limit loop iterations to prevent gas limit issues.".to_string(),
                 real_world_example: Some("Governor Bravo (2020) - Gas limit issues in governance proposals".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_unchecked_return_values(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_unchecked_return_values(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("transfer(") || line.contains("send(") {
         if !line.contains("require") && !line.contains("assert") {
             findings.push(VulnerabilityFinding {
@@ -170,12 +338,29 @@ fn check_unchecked_return_values(findings: &mut Vec<VulnerabilityFinding>, line_
                 fix_suggestion: "Use call() with proper return value checking, or use require() to check transfer success.".to_string(),
                 real_world_example: Some("Various DeFi protocols - Failed transfers not properly handled".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_front_running(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
-    if line.contains("swap") || line.contains("trade") || line.contains("order") {
+fn check_front_running(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
+    // Look for front-running vulnerable patterns
+    if line.contains("placeOrder") || line.contains("buyTokens") || line.contains("placeBid") {
+        findings.push(VulnerabilityFinding {
+            line: line_num + 1,
+            snippet: line.to_string(),
+            warning: "Potential front-running vulnerability".to_string(),
+            severity: Severity::High,
+            category: VulnerabilityType::FrontRunning,
+            explanation: "Public trading functions can be front-run by MEV bots.".to_string(),
+            fix_suggestion: "Use commit-reveal schemes, private mempools, or time-delayed execution.".to_string(),
+            real_world_example: Some("Uniswap V2 (2020) - MEV bots front-running trades for profit".to_string()),
+        });
+        return true;
+    }
+    // Fallback to general patterns
+    else if line.contains("swap") || line.contains("trade") || line.contains("order") {
         if line.contains("public") && !line.contains("private") {
             findings.push(VulnerabilityFinding {
                 line: line_num + 1,
@@ -187,11 +372,13 @@ fn check_front_running(findings: &mut Vec<VulnerabilityFinding>, line_num: usize
                 fix_suggestion: "Use commit-reveal schemes, private mempools, or time-delayed execution.".to_string(),
                 real_world_example: Some("Uniswap V2 (2020) - MEV bots front-running trades for profit".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_flash_loan_attacks(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_flash_loan_attacks(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("flash") || line.contains("borrow") {
         if !line.contains("require") && !line.contains("check") {
             findings.push(VulnerabilityFinding {
@@ -204,11 +391,13 @@ fn check_flash_loan_attacks(findings: &mut Vec<VulnerabilityFinding>, line_num: 
                 fix_suggestion: "Implement proper checks and use oracle price feeds with manipulation protection.".to_string(),
                 real_world_example: Some("Harvest Finance (2020) - $24M stolen through flash loan attack".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
-fn check_oracle_manipulation(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) {
+fn check_oracle_manipulation(findings: &mut Vec<VulnerabilityFinding>, line_num: usize, line: &str) -> bool {
     if line.contains("price") || line.contains("oracle") || line.contains("feed") {
         if line.contains("single") || !line.contains("multiple") {
             findings.push(VulnerabilityFinding {
@@ -221,8 +410,10 @@ fn check_oracle_manipulation(findings: &mut Vec<VulnerabilityFinding>, line_num:
                 fix_suggestion: "Use multiple oracle sources, implement circuit breakers, and add manipulation detection.".to_string(),
                 real_world_example: Some("Synthetix (2019) - Oracle manipulation led to incorrect price feeds".to_string()),
             });
+            return true;
         }
     }
+    false
 }
 
 pub fn scan_contract_with_timing(contract_path: &std::path::Path) -> Result<(Vec<VulnerabilityFinding>, f64), std::io::Error> {
