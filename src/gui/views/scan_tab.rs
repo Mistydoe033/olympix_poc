@@ -188,8 +188,28 @@ fn render_scan_results(ui: &mut egui::Ui, state: &mut AppState) {
             .strong());
         
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+            // Vulnerability type filter
+            ui.label("Type:");
+            if ui.button("All Types").clicked() {
+                state.selected_vulnerability_type = None;
+            }
+            if ui.button("🔴 Overflow").clicked() {
+                state.selected_vulnerability_type = Some(crate::models::VulnerabilityType::Overflow);
+            }
+            if ui.button("🟡 Reentrancy").clicked() {
+                state.selected_vulnerability_type = Some(crate::models::VulnerabilityType::Reentrancy);
+            }
+            if ui.button("🟠 Access Control").clicked() {
+                state.selected_vulnerability_type = Some(crate::models::VulnerabilityType::AccessControl);
+            }
+            if ui.button("🟢 External Call").clicked() {
+                state.selected_vulnerability_type = Some(crate::models::VulnerabilityType::UncheckedExternalCall);
+            }
+            
+            ui.add_space(20.0);
+            
             // Severity filter
-            ui.label("Filter:");
+            ui.label("Severity:");
             if ui.button("All").clicked() {
                 state.selected_severity = None;
             }
@@ -211,14 +231,26 @@ fn render_scan_results(ui: &mut egui::Ui, state: &mut AppState) {
     ui.add_space(10.0);
     
     // Filter findings - clone to avoid borrowing issues
-    let filtered_findings: Vec<crate::models::VulnerabilityFinding> = if let Some(severity) = &state.selected_severity {
-        state.vulnerability_findings.iter()
-            .filter(|f| std::mem::discriminant(&f.severity) == std::mem::discriminant(severity))
-            .cloned()
-            .collect()
-    } else {
-        state.vulnerability_findings.clone()
-    };
+    let filtered_findings: Vec<crate::models::VulnerabilityFinding> = state.vulnerability_findings.iter()
+        .filter(|f| {
+            // Apply severity filter if selected
+            let severity_match = if let Some(severity) = &state.selected_severity {
+                std::mem::discriminant(&f.severity) == std::mem::discriminant(severity)
+            } else {
+                true
+            };
+            
+            // Apply vulnerability type filter if selected
+            let type_match = if let Some(vuln_type) = &state.selected_vulnerability_type {
+                std::mem::discriminant(&f.category) == std::mem::discriminant(vuln_type)
+            } else {
+                true
+            };
+            
+            severity_match && type_match
+        })
+        .cloned()
+        .collect();
     
     if filtered_findings.is_empty() {
         ui.vertical_centered(|ui| {
@@ -230,6 +262,27 @@ fn render_scan_results(ui: &mut egui::Ui, state: &mut AppState) {
             ui.label("Your contracts appear to be secure.");
         });
     } else {
+        // Show active filters
+        let mut active_filters = Vec::new();
+        if let Some(severity) = &state.selected_severity {
+            active_filters.push(format!("Severity: {:?}", severity));
+        }
+        if let Some(vuln_type) = &state.selected_vulnerability_type {
+            active_filters.push(format!("Type: {:?}", vuln_type));
+        }
+        
+        if !active_filters.is_empty() {
+            ui.horizontal(|ui| {
+                ui.label("Active filters:");
+                for filter in &active_filters {
+                    ui.label(egui::RichText::new(filter)
+                        .color(egui::Color32::from_rgb(59, 130, 246))
+                        .background_color(egui::Color32::from_rgb(59, 130, 246).linear_multiply(0.1)));
+                }
+            });
+            ui.add_space(5.0);
+        }
+        
         ui.label(format!("Found {} vulnerability(ies):", filtered_findings.len()));
         ui.add_space(10.0);
         

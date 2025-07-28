@@ -27,6 +27,7 @@ impl Default for App {
             pattern_source: None,
             vulnerability_findings: Vec::new(),
             selected_severity: None,
+            selected_vulnerability_type: None,
             show_educational_content: false,
             scan_in_progress: false,
             last_scan_time: None,

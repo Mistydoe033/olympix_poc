@@ -22,7 +22,7 @@ pub struct VulnerabilityFinding {
     pub real_world_example: Option<String>,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Severity {
     Critical,
     High,
@@ -31,7 +31,7 @@ pub enum Severity {
     Info,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum VulnerabilityType {
     Overflow,
     Reentrancy,
@@ -97,6 +97,7 @@ pub struct AppState {
     pub pattern_source: Option<String>,
     pub vulnerability_findings: Vec<VulnerabilityFinding>,
     pub selected_severity: Option<Severity>,
+    pub selected_vulnerability_type: Option<VulnerabilityType>,
     pub show_educational_content: bool,
     pub scan_in_progress: bool,
     pub last_scan_time: Option<f64>,
