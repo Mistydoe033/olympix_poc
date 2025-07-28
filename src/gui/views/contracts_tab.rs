@@ -156,7 +156,7 @@ fn render_contracts_list(ui: &mut egui::Ui, state: &mut AppState) {
     
     ui.add_space(10.0);
     
-    egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
+    egui::ScrollArea::vertical().id_source("contracts_list_scroll").max_height(400.0).show(ui, |ui| {
         for (i, contract) in state.contracts.iter().enumerate() {
             let is_selected = state.selected_contract == Some(i);
             
@@ -221,11 +221,6 @@ fn render_contracts_list(ui: &mut egui::Ui, state: &mut AppState) {
                     });
                 });
             });
-            
-            // Handle selection
-            if ui.button("").clicked() {
-                state.selected_contract = Some(i);
-            }
             
             ui.add_space(5.0);
         }

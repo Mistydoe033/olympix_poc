@@ -94,6 +94,7 @@ pub struct AppState {
     pub selected_contract: Option<usize>,
     pub selected_pattern: Option<usize>,
     pub contract_source: Option<String>,
+    pub pattern_source: Option<String>,
     pub vulnerability_findings: Vec<VulnerabilityFinding>,
     pub selected_severity: Option<Severity>,
     pub show_educational_content: bool,
@@ -104,6 +105,7 @@ pub struct AppState {
     pub import_dialog_open: bool,
     pub import_file_type: Option<FileType>,
     pub scan_results_summary: ScanSummary,
+    pub show_pattern_view: bool,
 }
 
 #[derive(Clone)]

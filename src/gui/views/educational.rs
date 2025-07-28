@@ -11,7 +11,7 @@ pub fn render_educational(ui: &mut egui::Ui, state: &mut AppState) {
     
     ui.add_space(10.0);
     
-    egui::ScrollArea::vertical().show(ui, |ui| {
+    egui::ScrollArea::vertical().id_source("educational_scroll").show(ui, |ui| {
         render_high_severity_section(ui);
         ui.add_space(20.0);
         render_medium_severity_section(ui);

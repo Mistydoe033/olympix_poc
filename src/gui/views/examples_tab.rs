@@ -18,7 +18,7 @@ pub fn render_examples_tab(ui: &mut egui::Ui, _state: &mut AppState) {
     // Get real-world examples
     let examples = services::get_real_world_examples();
     
-    egui::ScrollArea::vertical().show(ui, |ui| {
+    egui::ScrollArea::vertical().id_source("examples_scroll").show(ui, |ui| {
         for example in examples {
             render_exploit_example(ui, &example);
             ui.add_space(20.0);

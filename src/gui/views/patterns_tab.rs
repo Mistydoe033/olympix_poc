@@ -183,9 +183,9 @@ fn render_patterns_list(ui: &mut egui::Ui, state: &mut AppState) {
         
         ui.add_space(5.0);
         
-        egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
+        egui::ScrollArea::vertical().id_source("rust_patterns_scroll").max_height(200.0).show(ui, |ui| {
             for pattern in &rust_patterns {
-                render_pattern_item(ui, pattern);
+                render_pattern_item(ui, pattern, state);
             }
         });
         
@@ -201,15 +201,15 @@ fn render_patterns_list(ui: &mut egui::Ui, state: &mut AppState) {
         
         ui.add_space(5.0);
         
-        egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
+        egui::ScrollArea::vertical().id_source("regex_patterns_scroll").max_height(200.0).show(ui, |ui| {
             for pattern in &regex_patterns {
-                render_pattern_item(ui, pattern);
+                render_pattern_item(ui, pattern, state);
             }
         });
     }
 }
 
-fn render_pattern_item(ui: &mut egui::Ui, pattern: &crate::models::PatternInfo) {
+fn render_pattern_item(ui: &mut egui::Ui, pattern: &crate::models::PatternInfo, state: &mut AppState) {
     ui.group(|ui| {
         ui.horizontal(|ui| {
             // Pattern icon
@@ -260,16 +260,10 @@ fn render_pattern_item(ui: &mut egui::Ui, pattern: &crate::models::PatternInfo) 
                     .size(12.0)
                     .color(egui::Color32::WHITE))
                     .clicked() {
-                    // Show pattern content in a popup or new view
-                    if let Ok(content) = utils::read_file_content(&pattern.path) {
-                        // For now, show in a simple popup
-                        egui::Window::new(&format!("Pattern: {}", pattern.name))
-                            .show(ui.ctx(), |ui| {
-                                egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
-                                    ui.label(egui::RichText::new(&content).monospace());
-                                });
-                            });
-                    }
+                    // Set pattern for viewing
+                    state.selected_pattern = Some(state.patterns.iter().position(|p| p.name == pattern.name).unwrap_or(0));
+                    state.show_pattern_view = true;
+                    state.pattern_source = None; // Will be loaded in pattern detail view
                 }
                 
                 if ui.button(egui::RichText::new("⚙️ Edit")
@@ -278,9 +272,7 @@ fn render_pattern_item(ui: &mut egui::Ui, pattern: &crate::models::PatternInfo) 
                     .clicked() {
                     // TODO: Implement pattern editing
                     // For now, show a success message
-                    ui.ctx().output_mut(|o| {
-                        o.copied_text = "Pattern editing coming soon!".to_string();
-                    });
+                    state.success_message = Some("Pattern editing coming soon!".to_string());
                 }
             });
         });

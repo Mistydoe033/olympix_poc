@@ -1,7 +1,7 @@
 use eframe::egui;
 use crate::models::{AppState, Tab, View};
 use crate::utils;
-use crate::gui::views::{render_contracts_tab, render_patterns_tab, render_scan_tab, render_examples_tab, render_contract_detail, render_analysis_result};
+use crate::gui::views::{render_contracts_tab, render_patterns_tab, render_scan_tab, render_examples_tab, render_contract_detail, render_analysis_result, render_pattern_detail};
 
 pub struct App {
     state: AppState,
@@ -24,6 +24,7 @@ impl Default for App {
             selected_contract: None,
             selected_pattern: None,
             contract_source: None,
+            pattern_source: None,
             vulnerability_findings: Vec::new(),
             selected_severity: None,
             show_educational_content: false,
@@ -34,6 +35,7 @@ impl Default for App {
             import_dialog_open: false,
             import_file_type: None,
             scan_results_summary: Default::default(),
+            show_pattern_view: false,
         };
         
         Self { state }
@@ -73,7 +75,13 @@ impl eframe::App for App {
                         _ => render_contracts_tab(ui, &mut self.state),
                     }
                 },
-                Tab::Patterns => render_patterns_tab(ui, &mut self.state),
+                Tab::Patterns => {
+                    if self.state.show_pattern_view {
+                        render_pattern_detail(ui, &mut self.state);
+                    } else {
+                        render_patterns_tab(ui, &mut self.state);
+                    }
+                },
                 Tab::Scan => render_scan_tab(ui, &mut self.state),
                 Tab::Examples => render_examples_tab(ui, &mut self.state),
             }

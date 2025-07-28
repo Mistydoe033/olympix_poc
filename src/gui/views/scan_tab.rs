@@ -233,7 +233,7 @@ fn render_scan_results(ui: &mut egui::Ui, state: &mut AppState) {
         ui.label(format!("Found {} vulnerability(ies):", filtered_findings.len()));
         ui.add_space(10.0);
         
-        egui::ScrollArea::vertical().max_height(500.0).show(ui, |ui| {
+        egui::ScrollArea::vertical().id_source("scan_results_scroll").max_height(500.0).show(ui, |ui| {
             for finding in &filtered_findings {
                 render_vulnerability_finding(ui, finding, state);
             }

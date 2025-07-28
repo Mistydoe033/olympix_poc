@@ -52,7 +52,7 @@ pub fn render_contract_detail(ui: &mut egui::Ui, state: &mut AppState) {
         ui.add_space(10.0);
         
         // Display source code
-        egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
+        egui::ScrollArea::vertical().id_source("contract_source_scroll").max_height(400.0).show(ui, |ui| {
             ui.label(egui::RichText::new(&source).monospace());
         });
     }
