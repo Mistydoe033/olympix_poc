@@ -1,0 +1,38 @@
+# Access Control Detection Patterns
+
+# Missing access control modifiers
+function\s+\w+\([^)]*\)\s+public\s*\{
+function\s+\w+\([^)]*\)\s+external\s*\{
+
+# Functions without any access control
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Weak access control checks
+require\(msg\.sender\s*!=\s*address\(0\)
+require\(msg\.sender\s*!=\s*0x0\)
+
+# tx.origin usage (vulnerable to phishing)
+tx\.origin\s*==\s*\w+
+require\(tx\.origin\s*==\s*\w+\)
+
+# Missing modifier usage
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*owner\s*=\s*\w+[^}]*\}
+
+# Public functions that should be private
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*\w+\s*=\s*0[^}]*\}
+
+# Unrestricted admin functions
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*selfdestruct[^}]*\}
+
+# Missing access control in constructors
+constructor\([^)]*\)\s*\{[^}]*owner\s*=\s*\w+[^}]*\}
+
+# Access control bypass through delegatecall
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*delegatecall[^}]*\}
+
+# Functions with wrong access control
+function\s+\w+\([^)]*\)\s+public\s*\{[^}]*require\(msg\.sender\s*==\s*owner[^}]*\}
+
+# Missing access control in fallback
+receive\(\)\s+external\s+payable\s*\{[^}]*\}
+fallback\(\)\s+external\s+payable\s*\{[^}]*\} 

@@ -1,0 +1,40 @@
+# Integer Overflow Detection Patterns
+
+# Basic arithmetic operations without overflow checks
+(\w+)\s*\+=\s*\w+
+(\w+)\s*-=\s*\w+
+(\w+)\s*\*=\s*\w+
+(\w+)\s*/=\s*\w+
+
+# Addition without SafeMath
+(\w+)\s*\+\s*\w+
+(\w+)\s*\+\s*msg\.value
+(\w+)\s*\+\s*block\.timestamp
+
+# Subtraction without underflow check
+(\w+)\s*-\s*\w+
+(\w+)\s*-\s*msg\.value
+
+# Multiplication without overflow check
+(\w+)\s*\*\s*\w+
+(\w+)\s*\*\s*msg\.value
+
+# Array access without bounds checking
+\w+\[\w+\]
+\w+\[msg\.sender\]
+\w+\[block\.number\]
+
+# Loop counters without overflow protection
+for\s*\(\s*uint256\s+\w+\s*=\s*0;\s*\w+\s*<\s*\w+;\s*\w+\+\+\s*\)
+
+# Timestamp operations that could overflow
+block\.timestamp\s*\+\s*\w+
+block\.timestamp\s*-\s*\w+
+
+# Gas limit issues in loops
+while\s*\(\s*block\.timestamp\s*<\s*\w+\s*\+\s*\w+\s*\)
+
+# Unchecked return values in arithmetic
+unchecked\s*\{[^}]*\+\s*\w+[^}]*\}
+unchecked\s*\{[^}]*-\s*\w+[^}]*\}
+unchecked\s*\{[^}]*\*\s*\w+[^}]*\} 

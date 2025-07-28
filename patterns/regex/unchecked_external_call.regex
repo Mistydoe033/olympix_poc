@@ -1,0 +1,42 @@
+# Unchecked External Call Detection Patterns
+
+# Unchecked external calls
+target\.call\(data\)
+\w+\.call\(\w+\)
+\w+\.call\{value:\s*\w+\}\(\w+\)
+
+# Unchecked delegatecall
+target\.delegatecall\(data\)
+\w+\.delegatecall\(\w+\)
+
+# Unchecked staticcall
+target\.staticcall\(data\)
+\w+\.staticcall\(\w+\)
+
+# Unchecked low-level calls
+\(bool\s+success,\s*\)\s*=\s*\w+\.call
+\(bool\s+success,\s*\)\s*=\s*\w+\.delegatecall
+\(bool\s+success,\s*\)\s*=\s*\w+\.staticcall
+
+# Unchecked calls in loops
+for\s*\([^)]*\)\s*\{[^}]*\.call\([^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*\.delegatecall\([^}]*\}
+
+# Unchecked calls with complex logic
+if\s*\([^)]*\)\s*\{[^}]*\.call\([^}]*\}
+if\s*\([^)]*\)\s*\{[^}]*\.delegatecall\([^}]*\}
+
+# Unchecked calls in try-catch
+try\s*\w+\.call\([^)]*\)\s*catch\s*\{
+try\s*\w+\.delegatecall\([^)]*\)\s*catch\s*\{
+
+# Unchecked calls in constructors
+constructor\([^)]*\)\s*\{[^}]*\.call\([^}]*\}
+constructor\([^)]*\)\s*\{[^}]*\.delegatecall\([^}]*\}
+
+# Unchecked calls with wrong require
+\(bool\s+success,\s*\)\s*=\s*\w+\.call[^}]*require\(success\s*==\s*true
+
+# Unchecked calls in fallback
+receive\(\)\s+external\s+payable\s*\{[^}]*\.call\([^}]*\}
+fallback\(\)\s+external\s+payable\s*\{[^}]*\.call\([^}]*\} 

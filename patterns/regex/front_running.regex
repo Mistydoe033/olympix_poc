@@ -1,0 +1,42 @@
+# Front Running Detection Patterns
+
+# Order book without slippage protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+\s*/\s*\w+[^}]*\}
+
+# Token sale without price adjustment
+function\s+\w+\([^)]*\)\s+payable\s*\{[^}]*\w+\s*=\s*msg\.value\s*/\s*\w+[^}]*\}
+
+# Auction without time delay
+function\s+\w+\([^)]*\)\s+payable\s*\{[^}]*\w+\s*=\s*msg\.value[^}]*\}
+
+# Oracle update without validation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Lottery based on transaction order
+function\s+\w+\([^)]*\)\s+payable\s*\{[^}]*require\(msg\.value\s*==\s*\w+[^}]*\}
+
+# Governance without protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\}
+
+# Flash loan without reentrancy protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*\+\s*=\s*\w+[^}]*\.call[^}]*\w+\s*-\s*=\s*\w+[^}]*\}
+
+# Arbitrage without slippage protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*getPrice[^}]*\w+\s*=\s*getPrice[^}]*if\s*\(\w+\s*<\s*\w+\)[^}]*\}
+
+# Liquidation without protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+\[[^}]*\][^}]*\w+\s*=\s*getDebt[^}]*if\s*\(\w+\s*<\s*\w+\)[^}]*\}
+
+# Reward distribution without protection
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*calculateReward[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\}
+
+# Price manipulation patterns
+\w+\s*=\s*getPrice[^}]*\w+\s*=\s*getPrice[^}]*\w+\s*\+\s*=\s*\w+\s*\*\s*\w+
+
+# No slippage protection
+\w+\s*=\s*msg\.value\s*/\s*\w+
+\w+\s*=\s*\w+\s*/\s*\w+
+
+# No time delay
+\w+\s*=\s*msg\.value
+\w+\s*=\s*\w+ 

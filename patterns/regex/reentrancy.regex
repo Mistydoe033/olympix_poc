@@ -1,23 +1,37 @@
 # Reentrancy Detection Patterns
 
 # External calls before state changes
-\.call\{.*\}\(.*\)
-\.transfer\(.*\)
-\.send\(.*\)
+\(bool\s+success,\s*\)\s*=\s*msg\.sender\.call
+\(bool\s+success,\s*\)\s*=\s*\w+\.call
+msg\.sender\.call\{value:\s*\w+\}
+\w+\.call\{value:\s*\w+\}
 
-# Unchecked external calls
-(\w+)\.call\(
-(\w+)\.transfer\(
-(\w+)\.send\(
+# External calls without reentrancy guards
+call\(
+delegatecall\(
+staticcall\(
+transfer\(
+send\(
 
 # State changes after external calls
-balance\[.*\]\s*=\s*balance\[.*\]\s*-\s*\w+
-balances\[.*\]\s*=\s*balances\[.*\]\s*-\s*\w+
+call\([^)]*\)[^}]*\w+\s*=\s*\w+
+delegatecall\([^)]*\)[^}]*\w+\s*=\s*\w+
+transfer\([^)]*\)[^}]*\w+\s*=\s*\w+
 
-# Missing reentrancy guards
-function\s+\w+\(.*\)\s*public\s*payable
-function\s+\w+\(.*\)\s*external\s*payable
+# Fallback functions that can be reentered
+receive\(\)\s+external\s+payable
+fallback\(\)\s+external\s+payable
 
-# Dangerous fallback functions
-fallback\(\)\s*external\s*payable
-receive\(\)\s*external\s*payable 
+# Multiple external calls in loops
+for\s*\([^)]*\)\s*\{[^}]*\.call\([^}]*\}
+
+# Cross-function reentrancy patterns
+function\s+\w+\([^)]*\)\s*\{[^}]*call\([^}]*\}
+function\s+\w+\([^)]*\)\s*\{[^}]*transfer\([^}]*\}
+
+# External calls with state changes in same function
+function\s+\w+\([^)]*\)\s*\{[^}]*call\([^}]*\}[^}]*\w+\s*=\s*\w+
+
+# Unchecked external calls
+target\.call\(data\)
+\w+\.call\(\w+\) 

@@ -1,0 +1,61 @@
+# Oracle Manipulation Detection Patterns
+
+# Single oracle dependency
+function\s+\w+\([^)]*\)\s*\{[^}]*return\s+\w+[^}]*\}
+
+# Oracle manipulation through flash loans
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*getPriceFromSingleOracle[^}]*\w+\s*=\s*\w+\s*/\s*\w+[^}]*\}
+
+# Oracle manipulation through MEV
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*getPriceFromSingleOracle[^}]*if\s*\(\w+\s*>\s*\w+\)[^}]*\}
+
+# Oracle manipulation through sandwich attacks
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*getPriceFromSingleOracle[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+\s*\*\s*\w+[^}]*\}
+
+# Oracle manipulation through time-weighted average
+function\s+\w+\([^)]*\)\s*\{[^}]*return\s+\w+[^}]*\}
+
+# Oracle manipulation through volume-weighted average
+function\s+\w+\([^)]*\)\s*\{[^}]*return\s+\w+[^}]*\}
+
+# Oracle manipulation through median
+function\s+\w+\([^)]*\)\s*\{[^}]*return\s+\w+[^}]*\}
+
+# Oracle manipulation through mean
+function\s+\w+\([^)]*\)\s*\{[^}]*return\s+\w+[^}]*\}
+
+# Oracle manipulation through staking
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Oracle manipulation through governance
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Oracle manipulation through bribery
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Oracle manipulation through collusion
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Oracle manipulation through data source
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*0[^}]*\}
+
+# Oracle manipulation through network
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*type\(uint256\)\.max[^}]*\}
+
+# Oracle manipulation through consensus
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*1[^}]*\}
+
+# Oracle manipulation through incentives
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Oracle manipulation through reputation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\s*=\s*\w+[^}]*\}
+
+# Single oracle patterns
+getPriceFromSingleOracle
+oraclePrice
+singleOracle
+
+# Oracle price usage patterns
+\w+\s*=\s*\w+\s*/\s*\w+
+\w+\s*=\s*\w+\s*\*\s*\w+ 

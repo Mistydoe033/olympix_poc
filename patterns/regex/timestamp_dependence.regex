@@ -1,0 +1,48 @@
+# Timestamp Dependence Detection Patterns
+
+# Timestamp-based randomness
+block\.timestamp
+block\.difficulty
+keccak256\(abi\.encodePacked\(block\.timestamp
+keccak256\(abi\.encodePacked\(block\.difficulty
+
+# Timestamp-based lottery
+block\.timestamp\s*%\s*\w+
+block\.timestamp\s*>\s*\w+
+block\.timestamp\s*<\s*\w+
+
+# Timestamp-based claim systems
+block\.timestamp\s*>=\s*\w+\s*\+\s*\w+
+block\.timestamp\s*<=\s*\w+\s*-\s*\w+
+
+# Timestamp-based access control
+block\.timestamp\s*>\s*\d+
+block\.timestamp\s*<\s*\d+
+
+# Timestamp-based state changes
+if\s*\(block\.timestamp\s*>\s*\w+\)
+if\s*\(block\.timestamp\s*<\s*\w+\)
+
+# Timestamp-based loop conditions
+while\s*\(block\.timestamp\s*<\s*\w+\)
+for\s*\([^)]*block\.timestamp[^)]*\)
+
+# Timestamp-based require conditions
+require\(block\.timestamp\s*>\s*\w+\)
+require\(block\.timestamp\s*<\s*\w+\)
+
+# Timestamp-based if conditions
+if\s*\(block\.timestamp\s*>\s*\d+\)
+if\s*\(block\.timestamp\s*<\s*\d+\)
+
+# Timestamp-based mapping keys
+\w+\[block\.timestamp\]
+
+# Timestamp-based events
+emit\s+\w+\(block\.timestamp\)
+
+# Timestamp-based calculations
+block\.timestamp\s*\+\s*\w+
+block\.timestamp\s*-\s*\w+
+block\.timestamp\s*\*\s*\w+
+block\.timestamp\s*/\s*\w+ 

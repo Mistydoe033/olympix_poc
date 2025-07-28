@@ -1,0 +1,46 @@
+# Gas Limit Detection Patterns
+
+# Unbounded loops
+for\s*\([^)]*\)\s*\{[^}]*\w+\.length[^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*\w+\.push[^}]*\}
+
+# Array operations that can grow indefinitely
+\w+\.push\(
+\w+\.push\(\w+\)
+
+# Recursive functions
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\([^}]*\}[^}]*\}
+
+# Complex calculations in loops
+for\s*\([^)]*\)\s*\{[^}]*\+\s*\w+\s*\*\s*\w+[^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*\w+\s*\+\s*\w+[^}]*\}
+
+# String operations in loops
+for\s*\([^)]*\)\s*\{[^}]*new\s+bytes[^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*string[^}]*\}
+
+# Storage operations in loops
+for\s*\([^)]*\)\s*\{[^}]*\w+\[[^}]*\]\s*=\s*\w+[^}]*\}
+
+# Event emissions in loops
+for\s*\([^)]*\)\s*\{[^}]*emit\s+\w+[^}]*\}
+
+# External calls in loops
+for\s*\([^)]*\)\s*\{[^}]*\.call\([^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*\.delegatecall\([^}]*\}
+
+# Memory allocation in loops
+for\s*\([^)]*\)\s*\{[^}]*new\s+bytes[^}]*\}
+for\s*\([^)]*\)\s*\{[^}]*new\s+\w+\[[^}]*\][^}]*\}
+
+# Unbounded while loops
+while\s*\([^)]*\)\s*\{[^}]*\}
+
+# Gas-intensive operations
+keccak256\([^)]*\)
+sha256\([^)]*\)
+ripemd160\([^)]*\)
+
+# Complex mathematical operations
+\w+\s*\*\s*\w+\s*\*\s*\w+
+\w+\s*\+\s*\w+\s*\+\s*\w+ 

@@ -1,0 +1,41 @@
+# Flash Loan Detection Patterns
+
+# Flash loan without proper validation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with weak validation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*if\s*\([^}]*\)[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with reentrancy vulnerability
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with oracle manipulation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*\w+\s*=\s*getOraclePrice[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+\s*\*\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with governance attack
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with liquidation attack
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with arbitrage
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with price manipulation
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*\w+\s*=\s*getPrice[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+\s*\*\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan with no fee
+function\s+\w+\([^)]*\)\s*\{[^}]*\w+\[msg\.sender\]\s*\+\s*=\s*\w+[^}]*\.call[^}]*require\([^}]*\w+\[msg\.sender\]\s*>=\s*\w+[^}]*\w+\[msg\.sender\]\s*-\s*=\s*\w+[^}]*\}
+
+# Flash loan callback patterns
+flashLoanCallback\(
+callback\(\)
+manipulateOracle\(\)
+vote\(\)
+liquidate\(\)
+arbitrage\(\)
+manipulatePrice\(\)
+
+# Flash loan amount patterns
+\w+\[msg\.sender\]\s*\+\s*=\s*\w+
+\w+\[msg\.sender\]\s*-\s*=\s*\w+ 
