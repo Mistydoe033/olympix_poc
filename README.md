@@ -2,99 +2,86 @@
 
 A **standalone Windows application** for managing Solidity contracts and exploit patterns with real-time regex analysis capabilities. **No coding experience required!**
 
-## 🚀 **For End Users - Quick Start**
+## 🚀 For End Users - Quick Start
 
-### **What You Get**
+### What You Get
 
-- ✅ **Zero coding required** - Just install and run
-- ✅ **Standalone Windows app** - No dependencies to install
-- ✅ **Modern native interface** - User-friendly dark theme
-- ✅ **Fast Rust backend** - Real-time pattern analysis
-- ✅ **Sample content included** - Ready-to-use contracts and patterns
-- ✅ **Real-time regex testing** - Test patterns on your .sol files instantly
+- ✅ Zero coding required - Just install and run
+- ✅ Standalone Windows app - No dependencies to install
+- ✅ Modern native interface - User-friendly dark theme
+- ✅ Fast Rust backend - Real-time pattern analysis
+- ✅ Sample content included - Ready-to-use contracts and patterns
+- ✅ Real-time regex testing - Test patterns on your .sol files instantly
+- ✅ **Export scan results** - TXT, JSON, CSV, and summary reports
 
-### **📦 Installation (Super Easy!)**
+### 📦 Installation (Super Easy!)
 
-1. **Download** the `Olympix Pattern Tool Setup.msi` installer
-2. **Double-click** the installer file
-3. **Follow** the simple installation wizard
-4. **Launch** from Desktop or Start Menu
-5. **Start using** immediately!
-
-### **🎯 What the Installer Does**
-
-- 📁 Installs to `Program Files`
-- 🖥️ Creates desktop shortcut
-- 📋 Adds to Start Menu
-- 📂 Sets up user folders in `Documents/Olympix Pattern Tool/`
-- 🔧 Configures everything automatically
-
-### **📁 Your Files After Installation**
-
-```
-Documents\Olympix Pattern Tool\
-├── contracts\           # Put your .sol files here
-├── patterns\
-│   ├── rust\           # Your Rust patterns
-│   └── regex\          # Your regex patterns
-└── config.json         # App settings
-```
+1. **Download** the `olympix_pattern_tool-installer.exe` installer
+2. **Run** the installer and follow the prompts
+3. **The app will be installed to** `C:\Program Files\Olympix Pattern Tool` (or your chosen location)
+4. **User data is stored in** `Documents/Olympix Pattern Tool`
+5. **Shortcuts** are created in the Start Menu and optionally on the Desktop
+6. **App icon** is embedded in the `.exe` and used for all shortcuts
 
 ---
 
-## 🛠️ **For Developers - Building the Installer**
+## 📤 Exporting Reports
 
-### **Prerequisites**
+You can export scan results in multiple formats from the **Scan** tab:
+
+- **TXT:** Human-readable report for sharing or printing
+- **JSON:** For integration with other tools or scripts
+- **CSV:** For spreadsheet analysis (Excel, Google Sheets, etc.)
+- **Summary:** High-level scan statistics
+
+**How to export:**
+
+1. Run a scan
+2. (Optional) Apply filters for severity/type
+3. Click the export button for your desired format
+4. Find the exported file in `Documents/Olympix Pattern Tool/` (timestamped)
+
+---
+
+## 🛠️ For Developers - Building the Installer
+
+### Prerequisites
 
 - Windows 10/11
 - Rust (latest stable)
 - Git
+- Inno Setup (for building the installer)
 
-### **Build Steps**
-
-#### **Option 1: PowerShell Script (Recommended)**
+### Build Steps
 
 ```powershell
 # Run the automated build script
-.\build-installer.ps1
+./build-installer.ps1
 ```
 
-#### **Option 2: Manual Build**
-
-```powershell
-# 1. Build the native Rust application
-cargo build --release
-
-# 2. (Optional) Package with your preferred installer tool
-```
-
-### **📦 Installer Location**
-
-After building, find your installer or binary at:
-
-```
-target\release\olympix-pattern-tool.exe
-```
+- The script will build the app, embed the icon, and prepare everything for the installer.
+- Open `olympix-installer.iss` in Inno Setup and click Compile.
+- The output will be `olympix_pattern_tool-installer.exe`.
 
 ---
 
-## 🎨 **Features**
+## 🎨 Features
 
-### **🏗️ Contract Management**
+### 🏗️ Contract Management
 
 - Load, save, and manage Solidity contracts
 - View contract content with syntax highlighting
 - CRUD operations for contract files
 - User-friendly file organization
 
-### **🔍 Pattern Management**
+### 🔍 Pattern Management
 
-- **Rust Patterns**: Save and manage Rust-based exploit patterns
-- **Regex Patterns**: Save and manage regex patterns
+- **Rust Patterns:** Save and manage Rust-based exploit patterns
+- **Regex Patterns:** Save and manage regex patterns
 - Organized pattern storage with type-specific directories
 - Pattern type indicators and icons
 
-### **⚡ Real-Time Regex Runner**
+### ⚡ Real-Time Regex Runner
 
 - Write and test regex patterns on contracts without saving
 - Full Rust regex syntax support
@@ -102,7 +89,7 @@ target\release\olympix-pattern-tool.exe
 - Built-in vulnerability pattern suggestions
 - Instant results display
 
-### **🎨 Modern GUI**
+### 🎨 Modern GUI
 
 - Dark theme with professional styling
 - Tabbed interface for easy navigation
@@ -112,9 +99,9 @@ target\release\olympix-pattern-tool.exe
 
 ---
 
-## 📋 **Usage Guide**
+## 📋 Usage Guide
 
-### **Adding Your First Contract**
+### Adding Your First Contract
 
 1. Open the app
 2. Go to **Contracts** tab
@@ -123,7 +110,7 @@ target\release\olympix-pattern-tool.exe
 5. Paste your Solidity code
 6. Click **"Save Contract"**
 
-### **Testing with Regex**
+### Testing with Regex
 
 1. Go to **Regex Runner** tab
 2. Select your contract from dropdown
@@ -131,7 +118,7 @@ target\release\olympix-pattern-tool.exe
 4. Click **"Run Regex"**
 5. See results instantly!
 
-### **Creating Patterns**
+### Creating Patterns
 
 1. Go to **Patterns** tab
 2. Click **"New Rust Pattern"** or **"New Regex Pattern"**
@@ -140,7 +127,7 @@ target\release\olympix-pattern-tool.exe
 
 ---
 
-## 🔧 **Built-in Regex Suggestions**
+## 🛠️ Built-in Regex Suggestions
 
 The tool includes pre-built patterns for common Solidity vulnerabilities:
 
@@ -153,7 +140,7 @@ The tool includes pre-built patterns for common Solidity vulnerabilities:
 
 ---
 
-## 🏗️ **Project Structure**
+## 🏗️ Project Structure
 
 ```
 olympix_pattern_tool/
@@ -164,27 +151,28 @@ olympix_pattern_tool/
 ├── contracts/                # Sample Solidity contracts
 ├── patterns/                 # Sample exploit patterns
 ├── build-installer.ps1       # Automated build script
-├── build-installer.bat       # Alternative build script
+├── olympix-installer.iss     # Inno Setup script
+├── favicon.ico                # Application icon
 └── README.md                 # This file
 ```
 
 ---
 
-## 🛠️ **Troubleshooting**
+## 🛠️ Troubleshooting
 
-### **App Won't Start**
+### App Won't Start
 
 - ✅ Check Windows Defender isn't blocking it
 - ✅ Run as Administrator if needed
 - ✅ Ensure .NET Framework is installed
 
-### **Can't Find Files**
+### Can't Find Files
 
-- ✅ Check `Documents\Olympix Pattern Tool\` folder
+- ✅ Check `Documents/Olympix Pattern Tool/` folder
 - ✅ Create folders manually if missing
 - ✅ Restart the application
 
-### **Performance Issues**
+### Performance Issues
 
 - ✅ Close other applications
 - ✅ Ensure 4GB+ RAM available
@@ -192,7 +180,7 @@ olympix_pattern_tool/
 
 ---
 
-## 📞 **Support**
+## 📞 Support
 
 - **Documentation**: See `INSTALLATION_GUIDE.md` for detailed instructions
 - **Issues**: Create an issue in the repository
@@ -200,7 +188,7 @@ olympix_pattern_tool/
 
 ---
 
-## 🔄 **Updates**
+## 🔄 Updates
 
 The app will check for updates automatically. To update:
 
@@ -210,7 +198,7 @@ The app will check for updates automatically. To update:
 
 ---
 
-## 🎉 **You're Ready!**
+## 🎉 You're Ready!
 
 The Olympix Pattern Tool is designed to be **completely user-friendly**. No coding experience required - just drag and drop your .sol files and start analyzing them with powerful regex patterns!
 

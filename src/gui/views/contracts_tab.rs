@@ -1,5 +1,5 @@
 use eframe::egui;
-use crate::models::{AppState, FileType, View};
+use crate::models::{AppState, FileType};
 use crate::utils;
 use rfd::FileDialog;
 
